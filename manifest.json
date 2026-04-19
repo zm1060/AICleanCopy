@@ -1,0 +1,39 @@
+{
+  "manifest_version": 3,
+  "name": "AI Clean Copy",
+  "version": "1.0.0",
+  "description": "面向 Word 的净化复制工具 — 一键清洗 AI 对话中的零宽字符、异常换行和冗余样式，让粘贴到 Word 不再污染排版。",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "permissions": [
+    "contextMenus",
+    "scripting",
+    "activeTab",
+    "clipboardWrite",
+    "notifications",
+    "storage"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_title": "AI Clean Copy"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["cleaner.js", "content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}

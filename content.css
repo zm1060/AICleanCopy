@@ -1,0 +1,72 @@
+/**
+ * AI Clean Copy — Toast 样式
+ * 注入到每个页面中
+ */
+
+/* ---- Toast 通知 ---- */
+.aicc-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 2147483647;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #fff;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+  backdrop-filter: blur(16px);
+  transform: translateY(20px);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.aicc-toast-show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.aicc-toast-hide {
+  transform: translateY(-10px);
+  opacity: 0;
+}
+
+.aicc-toast-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.aicc-toast[data-type="success"] .aicc-toast-icon {
+  background: linear-gradient(135deg, #00b894, #00cec9);
+  color: #fff;
+}
+
+.aicc-toast[data-type="error"] .aicc-toast-icon {
+  background: linear-gradient(135deg, #e17055, #d63031);
+  color: #fff;
+}
+
+.aicc-toast[data-type="info"] .aicc-toast-icon {
+  background: linear-gradient(135deg, #74b9ff, #0984e3);
+  color: #fff;
+}
+
+.aicc-toast-text {
+  color: rgba(255, 255, 255, 0.95);
+  letter-spacing: 0.3px;
+}
