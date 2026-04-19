@@ -359,7 +359,7 @@ function cleanDomNode(node, options = {}) {
   // 移除不允许的标签但保留其子内容
   if (!ALLOWED_TAGS.has(tag) && tag !== 'body' && tag !== 'html' && tag !== 'head') {
     // 对于 script / style / svg / canvas 等：整个移除
-    const removeEntirely = new Set(['script', 'style', 'svg', 'canvas', 'noscript', 'iframe', 'object', 'embed']);
+    const removeEntirely = new Set(['script', 'style', 'svg', 'canvas', 'noscript', 'iframe', 'object', 'embed', 'button', 'form']);
     if (removeEntirely.has(tag)) {
       node.remove();
       return;
@@ -597,6 +597,31 @@ function isMathScript(el) {
 // ============================================================
 
 /**
+ * 从表格节点生成 Tab 分隔的纯文本 (TSV)，方便 Word 将文本转换为表格
+ * @param {Element} tableNode 
+ */
+function extractTableToTsv(tableNode) {
+  let tsv = '';
+  const rows = Array.from(tableNode.querySelectorAll('tr'));
+  
+  rows.forEach((row) => {
+    const cells = Array.from(row.querySelectorAll('th, td'));
+    const cellTexts = cells.map(cell => {
+      const cellParts = [];
+      const clone = cell.cloneNode(true);
+      walkNodesForLatex(clone, cellParts);
+      // 清除表格单元内部换行，防止破坏 TSV 结构（替换为一个空格）
+      return cellParts.join('').replace(/\r?\n/g, ' ').trim();
+    });
+    
+    if (cellTexts.length > 0) {
+      tsv += cellTexts.join('\t') + '\n';
+    }
+  });
+  return tsv;
+}
+
+/**
  * 获取当前选区的 HTML 内容（已将公式替换为 LaTeX 源码）
  * @returns {string} HTML 字符串
  */
@@ -715,12 +740,34 @@ function walkNodesForLatex(node, parts) {
   // 对元素节点检查是否为公式
   if (node.nodeType === Node.ELEMENT_NODE) {
     const tag = node.tagName.toLowerCase();
+    
+    if (tag === 'button' || tag === 'svg') return; // 忽略复制按钮、图标等
+
     if (tag === 'br') {
       parts.push('\n');
       return;
     }
 
-    const blockTags = new Set(['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'article', 'section', 'blockquote', 'tr', 'td', 'th']);
+    // 处理表格（转换为以 Tab 隔开的文本，方便粘贴后直接转换为表格）
+    if (tag === 'table') {
+      if (parts.length > 0 && !parts[parts.length - 1].endsWith('\n')) parts.push('\n');
+      parts.push('\n' + extractTableToTsv(node) + '\n');
+      return; 
+    }
+
+    // 处理代码块（纯文本原生输出，去掉 markdown 符号）
+    if (tag === 'pre') {
+      const clone = node.cloneNode(true);
+      const buttons = clone.querySelectorAll('button, svg');
+      buttons.forEach(b => b.remove());
+      
+      if (parts.length > 0 && !parts[parts.length - 1].endsWith('\n')) parts.push('\n');
+      // 去除末尾空行并输出代码内容本身
+      parts.push('\n' + clone.textContent.replace(/\n+$/, '') + '\n\n');
+      return; 
+    }
+
+    const blockTags = new Set(['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'article', 'section', 'blockquote']);
     if (blockTags.has(tag)) {
       isBlock = true;
       if (parts.length > 0 && !parts[parts.length - 1].endsWith('\n')) {
