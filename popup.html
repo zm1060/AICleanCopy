@@ -15,25 +15,27 @@
       <div class="logo-area">
         <div class="logo-icon">
           <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-            <rect width="28" height="28" rx="7" fill="url(#grad1)" />
-            <path d="M8 10h12M8 14h8M8 18h10" stroke="#fff" stroke-width="2" stroke-linecap="round" />
-            <circle cx="21" cy="19" r="4" fill="#00cec9" stroke="#1a1a2e" stroke-width="1.5" />
-            <path d="M19.5 19l1 1 2-2" stroke="#1a1a2e" stroke-width="1.2" stroke-linecap="round"
-              stroke-linejoin="round" />
-            <defs>
-              <linearGradient id="grad1" x1="0" y1="0" x2="28" y2="28">
-                <stop offset="0%" stop-color="#6c5ce7" />
-                <stop offset="100%" stop-color="#0984e3" />
-              </linearGradient>
-            </defs>
+            <rect width="28" height="28" rx="6" fill="#18181b" />
+            <path d="M8 10h12M8 14h8M8 18h10" stroke="#fff" stroke-width="1.5" stroke-linecap="round" />
+            <circle cx="21" cy="19" r="4" fill="#3b82f6" stroke="#18181b" stroke-width="1.5" />
+            <path d="M19.5 19l1 1 2-2" stroke="#fff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
         </div>
         <div class="logo-text">
           <h1>AI Clean Copy</h1>
-          <p class="subtitle">面向 Word 的净化复制</p>
+          <p class="subtitle">面向 Word 的全能格式净化工具</p>
         </div>
       </div>
     </header>
+
+    <!-- 支持平台标签 -->
+    <div class="platforms-badge">
+      <span>Supported:</span> 
+      <strong>ChatGPT</strong> / 
+      <strong>Gemini</strong> / 
+      <strong>Claude</strong> / 
+      <strong>DeepSeek</strong>
+    </div>
 
     <!-- 选区状态 -->
     <div class="selection-status" id="selectionStatus">
@@ -43,56 +45,82 @@
 
     <!-- 操作按钮 -->
     <div class="actions">
-      <button class="btn btn-primary" id="btnPlainText" title="Ctrl+C 空格">
-        <span class="btn-icon">📄</span>
+      <button class="btn btn-primary" id="btnPlainText" title="Ctrl+C 然后 空格">
+        <span class="btn-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+        </span>
         <div class="btn-content">
-          <span class="btn-title">复制为 Word 纯净文本</span>
-          <span class="btn-desc">移除所有格式，最稳定</span>
+          <span class="btn-title">复制为纯净文本</span>
+          <span class="btn-desc">彻底移除格式 | 完美还原公式</span>
         </div>
         <span class="btn-shortcut">Ctrl+C ␣</span>
       </button>
 
-      <button class="btn btn-secondary" id="btnRichText" title="Ctrl+V 空格">
-        <span class="btn-icon">📝</span>
+      <button class="btn btn-secondary" id="btnRichText" title="Ctrl+V 然后 空格">
+        <span class="btn-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+        </span>
         <div class="btn-content">
-          <span class="btn-title">复制为 Word 清洁富文本</span>
-          <span class="btn-desc">保留标题、加粗、代码块、表格</span>
+          <span class="btn-title">复制为排版文本</span>
+          <span class="btn-desc">保留层级与表格 | 洗净乱码</span>
         </div>
         <span class="btn-shortcut">Ctrl+V ␣</span>
       </button>
     </div>
 
-    <!-- 清洗选项 -->
-    <details class="options-panel">
-      <summary class="options-toggle">
-        <span>⚙️ 清洗选项</span>
-        <span class="toggle-arrow">▶</span>
-      </summary>
-      <div class="options-content">
-        <label class="option-item">
-          <input type="checkbox" id="optCjkSpacing" checked>
-          <span class="option-label">去除中英文间多余空格</span>
-        </label>
-        <label class="option-item">
-          <input type="checkbox" id="optPreserveCode" checked>
-          <span class="option-label">保留代码块缩进</span>
-        </label>
-        <label class="option-item">
-          <input type="checkbox" id="optRemovePua" checked>
-          <span class="option-label">移除 Unicode 私用区字符</span>
-        </label>
-        <label class="option-item">
-          <input type="checkbox" id="optCollapseLines" checked>
-          <span class="option-label">压缩过多空行</span>
-        </label>
-      </div>
-    </details>
+    <!-- 底侧折叠面板区 -->
+    <div class="panels-wrapper">
+      <!-- 清洗选项 -->
+      <details class="panel-card options-panel">
+        <summary class="panel-toggle">
+          <div class="toggle-left">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <span>高级清洗配置</span>
+          </div>
+          <svg class="toggle-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </summary>
+        <div class="options-content">
+          <label class="option-item">
+            <input type="checkbox" id="optCjkSpacing" checked>
+            <span class="option-label">自动清理中英文多余空格</span>
+          </label>
+          <label class="option-item">
+            <input type="checkbox" id="optPreserveCode" checked>
+            <span class="option-label">原样保留代码块前端缩进</span>
+          </label>
+          <label class="option-item">
+            <input type="checkbox" id="optRemovePua" checked>
+            <span class="option-label">深度过滤乱码与不可见字符</span>
+          </label>
+          <label class="option-item">
+            <input type="checkbox" id="optCollapseLines" checked>
+            <span class="option-label">自动折叠冗长的连续空行</span>
+          </label>
+        </div>
+      </details>
+
+      <!-- 联系支持 / 微信二维码 -->
+      <details class="panel-card support-panel" open>
+        <summary class="panel-toggle">
+          <div class="toggle-left">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></svg>
+            <span>Buy Me A Coffee</span>
+          </div>
+          <svg class="toggle-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </summary>
+        <div class="support-content">
+          <p class="support-text">如果觉得插件对您有所帮助<br>可以扫码请作者喝杯咖啡 ☕</p>
+          <div class="qr-code-wrapper">
+            <img src="wechat_qr.png" alt="WeChat Support QR Code">
+          </div>
+          <p class="support-text light">也欢迎在微信中反馈遇到的 Bug</p>
+        </div>
+      </details>
+    </div>
 
     <!-- 底部信息 -->
     <footer class="popup-footer">
       <span class="footer-text">v1.0.0</span>
-      <span class="footer-divider">·</span>
-      <span class="footer-text">选中 → 右键 或 点击按钮</span>
     </footer>
   </div>
 

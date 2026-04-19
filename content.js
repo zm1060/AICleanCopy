@@ -120,7 +120,10 @@ async function writeCleanRichText() {
     normalizeCjk: userOptions.normalizeCjk,
   });
 
-  const cleanedHtml = cleaner.cleanRichHtml(rawHtml);
+  const cleanedHtml = cleaner.cleanRichHtml(rawHtml, {
+    preserveCodeIndent: userOptions.preserveCode,
+    normalizeCjk: userOptions.normalizeCjk,
+  });
 
   try {
     const htmlBlob = new Blob([cleanedHtml], { type: 'text/html' });

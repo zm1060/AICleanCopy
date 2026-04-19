@@ -112,10 +112,24 @@ function removePuaChars(text) {
  *   "VaR 95%"          → "VaR 95%"  （保留：两边都是 ASCII）
  */
 function normalizeCjkSpacing(text) {
-  // CJK 汉字 → 空格 → ASCII 可打印字符（\x21-\x7e，不含空格本身）
-  text = text.replace(/([\u4e00-\u9fff\u3400-\u4dbf]) +([\x21-\x7e])/g, '$1$2');
-  // ASCII 可打印字符 → 空格 → CJK 汉字
-  text = text.replace(/([\x21-\x7e]) +([\u4e00-\u9fff\u3400-\u4dbf])/g, '$1$2');
+  // 包含 CJK 汉字与全角标点符号的扩展范围
+  const cjk = '\\u4e00-\\u9fff\\u3400-\\u4dbf\\u3000-\\u303f\\uff00-\\uffef';
+  
+  // 匹配规则：
+  // 1. 左边是 CJK/全角标点，右边是 ASCII 或 CJK/全角标点
+  // 2. 左边是 ASCII，右边是 CJK/全角标点
+  const re = new RegExp(`([${cjk}]) +([\\x21-\\x7e${cjk}])|([\\x21-\\x7e]) +([${cjk}])`, 'g');
+  
+  // 使用循环确立重叠匹配（如 A _ B _ C）能被完全收敛
+  let prev;
+  do {
+    prev = text;
+    text = text.replace(re, (match, c1, c2, a1, c3) => {
+      if (c1) return c1 + c2;
+      return a1 + c3;
+    });
+  } while (text !== prev);
+  
   return text;
 }
 
@@ -220,12 +234,12 @@ function processNonCodeLines(text, processor) {
  * @param {string} html - 原始 HTML 字符串
  * @returns {string} 清洗后的 HTML
  */
-function cleanRichHtml(html) {
+function cleanRichHtml(html, options = {}) {
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, 'text/html');
 
   // 递归清洗 DOM 树
-  cleanDomNode(doc.body);
+  cleanDomNode(doc.body, options);
 
   // 添加 Word 兼容的基础样式
   const style = doc.createElement('style');
@@ -302,15 +316,38 @@ const ALLOWED_CSS_PROPS = new Set([
 /**
  * 递归清洗 DOM 节点
  */
-function cleanDomNode(node) {
+function cleanDomNode(node, options = {}) {
   if (!node) return;
 
   // 文本节点：清洗零宽字符 & 异形空格
   if (node.nodeType === Node.TEXT_NODE) {
     let text = node.textContent;
+
+    // 清理掉纯粹用于 HTML 排版导致的缩进换行
+    if (text.trim() === '' && text.includes('\n')) {
+      node.textContent = '';
+      return;
+    }
+
     text = removeZeroWidthChars(text);
     text = removePuaChars(text);
     text = normalizeExoticSpaces(text);
+    if (options.normalizeCjk) {
+      text = normalizeCjkSpacing(text);
+    }
+    
+    // Word 不支持 white-space: pre-wrap 导致真实换行被合并为空格，需转换为 <br>
+    if (text.includes('\n')) {
+      const fragment = document.createDocumentFragment();
+      const parts = text.split('\n');
+      for (let i = 0; i < parts.length; i++) {
+        if (parts[i]) fragment.appendChild(document.createTextNode(parts[i]));
+        if (i < parts.length - 1) fragment.appendChild(document.createElement('br'));
+      }
+      node.replaceWith(fragment);
+      return;
+    }
+
     node.textContent = text;
     return;
   }
@@ -347,7 +384,7 @@ function cleanDomNode(node) {
   // 递归处理子节点（从后往前以避免动态修改导致跳过）
   const children = Array.from(node.childNodes);
   for (const child of children) {
-    cleanDomNode(child);
+    cleanDomNode(child, options);
   }
 }
 
@@ -662,7 +699,12 @@ function walkNodesForLatex(node, parts) {
   if (!node) return;
 
   if (node.nodeType === Node.TEXT_NODE) {
-    parts.push(node.textContent);
+    let text = node.textContent;
+    // 忽略纯粹用于 HTML 代码排版的含换行空白字符（否则会导致多余空行）
+    if (text.trim() === '' && text.includes('\n')) {
+      return;
+    }
+    parts.push(text);
     return;
   }
 
